@@ -1,4 +1,3 @@
-
 #include <GL/glew.h>
 #include <GL/freeglut.h>
 #include <iostream>
@@ -12,31 +11,30 @@ using namespace std;
 // Note: Input to this shader is the vertex positions that we specified for the triangle. 
 // Note: gl_Position is a special built-in variable that is supposed to contain the vertex position (in X, Y, Z, W)
 // Since our triangle vertices were specified as vec3, we just set W to 1.0.
-
-static const char* pVS = "                                                    \n\
-#version 330                                                                  \n\
-                                                                              \n\
-in vec3 vPosition;															  \n\
-in vec4 vColor;																  \n\
-out vec4 color;																 \n\
-                                                                              \n\
-                                                                               \n\
-void main()                                                                     \n\
-{                                                                                \n\
-    gl_Position = vec4(vPosition.x, vPosition.y, vPosition.z, 1.0);  \n\
-	color = vColor;							\n\
+static const char* pVS = "                                                  \n\
+#version 330                                                                \n\
+                                                                            \n\
+in vec3 vPosition;															\n\
+in vec4 vColor;																\n\
+out vec4 color;																\n\
+                                                                            \n\
+void main()                                                                 \n\
+{                                                                           \n\
+    //gl_Position = vec4(vPosition.x, vPosition.y, vPosition.z, 1.0);		\n\
+	gl_Position = vec4(vPosition.x / 2, vPosition.y / 2, vPosition.z / 2, 1.0);			\n\
+	color = vColor;															\n\
 }";
 
 // Fragment Shader
 // Note: no input in this shader, it just outputs the colour of all fragments, in this case set to red (format: R, G, B, A).
-static const char* pFS = "                                              \n\
-#version 330                                                            \n\
-                                                                        \n\
-out vec4 FragColor;                                                      \n\
-                                                                          \n\
-void main()                                                               \n\
-{                                                                          \n\
-FragColor = vec4(1.0, 0.0, 0.0, 1.0);									 \n\
+static const char* pFS = "													\n\
+#version 330																\n\
+in vec4 color;																\n\
+out vec4 FragColor							;								\n\
+																			\n\
+void main()																	\n\
+{																			\n\
+	FragColor = color;														\n\
 }";
 
 
@@ -115,7 +113,7 @@ GLuint CompileShaders()
 // VBO Functions - click on + to expand
 #pragma region VBO_FUNCTIONS
 GLuint generateObjectBuffer(GLfloat vertices[], GLfloat colors[]) {
-	GLuint numVertices = 3;
+	GLuint numVertices = 6;
 	// Genderate 1 generic buffer object, called VBO
 	GLuint VBO;
  	glGenBuffers(1, &VBO);
@@ -131,7 +129,7 @@ return VBO;
 }
 
 void linkCurrentBuffertoShader(GLuint shaderProgramID){
-	GLuint numVertices = 3;
+	GLuint numVertices = 6;
 	// find the location of the variables that we will be using in the shader program
 	GLuint positionID = glGetAttribLocation(shaderProgramID, "vPosition");
 	GLuint colorID = glGetAttribLocation(shaderProgramID, "vColor");
@@ -147,24 +145,37 @@ void linkCurrentBuffertoShader(GLuint shaderProgramID){
 
 
 void display(){
-
 	glClear(GL_COLOR_BUFFER_BIT);
 	// NB: Make the call to draw the geometry in the currently activated vertex buffer. This is where the GPU starts to work!
-	glDrawArrays(GL_TRIANGLES, 0, 3);
+	glDrawArrays(GL_TRIANGLES, 0, 6);
     glutSwapBuffers();
 }
-
 
 void init()
 {
 	// Create 3 vertices that make up a triangle that fits on the viewport 
-	GLfloat vertices[] = {-1.0f, -1.0f, 0.0f,
-			1.0f, -1.0f, 0.0f,
-			0.0f, 1.0f, 0.0f};
+	GLfloat vertices[] = {
+		//first triangle
+		-1.0f, -1.0f, 0.0f,
+		-1.0f, 1.0f, 0.0f,
+		1.0f, -1.0f, 0.0f,
+
+		//second triangle
+		1.0f, 1.0f, 0.0f,
+		-1.0f, 1.0f, 0.0f,
+		1.0f, -1.0f, 0.0f
+	};
 	// Create a color array that identfies the colors of each vertex (format R, G, B, A)
-	GLfloat colors[] = {0.0f, 1.0f, 0.0f, 1.0f,
-			1.0f, 0.0f, 0.0f, 1.0f,
-			0.0f, 0.0f, 1.0f, 1.0f};
+	GLfloat colors[] = {
+		1.0f, 0.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 0.0f, 1.0f,
+		1.0f, 1.0f, 0.0f, 1.0f,
+		1.0f, 1.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 0.0f, 1.0f,
+		1.0f, 0.0f, 0.0f, 1.0f,
+		1.0f, 1.0f, 0.0f, 1.0f,
+		1.0f, 1.0f, 0.0f, 1.0f
+	};
 	// Set up the shaders
 	GLuint shaderProgramID = CompileShaders();
 	// Put the vertices and colors into a vertex buffer object
@@ -196,14 +207,3 @@ int main(int argc, char** argv){
 	glutMainLoop();
     return 0;
 }
-
-
-
-
-
-
-
-
-
-
-
